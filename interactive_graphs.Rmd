@@ -1,0 +1,123 @@
+---
+title: "Interactive Graphs"
+---
+
+
+__Look at how cool this plot is!__
+
+$$Y = \alpha \cdot \sin(X), \alpha = 0,0.1,0.2,...,3$$
+
+```{r echo = FALSE}
+
+if (!require("tidyverse")) install.packages("tidyverse"); library(tidyverse)
+if (!require("quanteda")) install.packages("quanteda"); library(quanteda)
+if (!require("quanteda.textmodels")) install.packages("quanteda.textmodels"); library(quanteda.textmodels)
+if (!require("readtext")) install.packages("readtext"); library(readtext)
+if (!require("stm")) install.packages("stm"); library(stm)
+if (!require("dplyr")) install.packages("dplyr"); library(dplyr)
+if (!require("rio")) install.packages("rio"); library(rio)
+if (!require("countrycode")) install.packages("countrycode");
+  library(countrycode)
+if (!require("writexl")) install.packages("writexl"); library(writexl)
+if (!require("igraph")) install.packages("igraph"); library(igraph)
+if (!require("knitr")) install.packages("knitr"); library(knitr)
+if (!require("stringr")) install.packages("stringr"); library(stringr)
+if (!require("CINNA")) install.packages("CINNA"); library(CINNA)
+if (!require("Hmisc")) install.packages("Hmisc"); library(Hmisc)
+if (!require("stargazer")) install.packages("stargazer"); library(stargazer)
+if (!require("quanteda.textstats")) install.packages("quanteda.textstats"); library(quanteda.textstats)
+if (!require("networkD3")) install.packages("networkD3"); library(networkD3)
+if (!require("graph4lg")) install.packages("graph4lg"); library(graph4lg)
+if (!require("edgebundleR")) install.packages("edgebundleR"); library(edgebundleR)
+
+
+```
+
+
+```{r, echo = FALSE, fig.align='center'}
+
+
+# Create matrices based on cooperation
+data_terror_pt1 <- import("data_terror.xlsx")
+data_terror_pt2 <- import("data_terror_pt2.xlsx")
+
+data_coop_pt1 <- subset(data_terror_pt1, select=c(1, 2, 12))
+data_coop_pt2 <- subset(data_terror_pt2, select=c(1, 2, 12))
+
+
+# install.packages("graph4lg")
+
+
+# Create matrix
+data_coop_pt1 <- df_to_pw_mat(data_coop_pt1, from = "s1_cowc", 
+                              to = "s2_cowc", value = "terror_coop")
+
+data_coop_pt2 <- df_to_pw_mat(data_coop_pt2, from = "s1_cowc", 
+                              to = "s2_cowc", value = "terror_coop")
+
+
+# Replace values on the diagonal with NA
+diag(data_coop_pt1) <- rep(NA)
+diag(data_coop_pt2) <- rep(NA)
+
+
+# Create igraph objects
+network_coop_pt1 <- graph_from_adjacency_matrix(data_coop_pt1, mode = "undirected", weighted = TRUE)
+class(network_coop_pt1)
+
+network_coop_pt2 <- graph_from_adjacency_matrix(data_coop_pt2, mode = "undirected", weighted = TRUE)
+class(network_coop_pt2)
+
+
+# Plot network
+network_coop_pt1 <- simplify(network_coop_pt1, remove.multiple = TRUE, remove.loops = TRUE)
+
+edgebundle(network_coop_pt1, tension = 0.8, cutoff = 0.5, fontsize = 10)
+
+```
+```{r echo = FALSE, fig.align='center'}
+
+network_coop_pt2 <- simplify(network_coop_pt2, remove.multiple = TRUE, remove.loops = TRUE)
+
+edgebundle(network_coop_pt2, tension = 0.8, cutoff = 0.5, fontsize = 10)
+
+```
+```{r echo = FALSE, fig.align='center'}
+
+cluster_fg_pt1 <- cluster_fast_greedy(network_coop_pt1, merges = TRUE, modularity = TRUE, membership = TRUE, weights = E(network_coop_pt1)$weight)
+
+cluster_fg_pt2 <- cluster_fast_greedy(network_coop_pt2, merges = TRUE, modularity = TRUE, membership = TRUE, weights = E(network_coop_pt2)$weight)
+
+
+
+# Use igraph to make the graph and find membership for pt1
+members_pt1 <- membership(cluster_fg_pt1)
+members_pt2 <- membership(cluster_fg_pt2)
+
+# Convert to object suitable for networkD3
+coop_d3_pt1 <- igraph_to_networkD3(network_coop_pt1, group = members_pt1)
+coop_d3_pt2 <- igraph_to_networkD3(network_coop_pt2, group = members_pt2)
+
+
+# Create force directed network plot
+forceNetwork(Links = coop_d3_pt1$links, Nodes = coop_d3_pt1$nodes, 
+             Source = 'source', Target = 'target', 
+             NodeID = 'name', Group = 'group',
+             zoom = TRUE,
+             linkDistance = 200,
+             opacity = 0.8,
+             legend = T)
+
+
+forceNetwork(Links = coop_d3_pt2$links, Nodes = coop_d3_pt2$nodes, 
+             Source = 'source', Target = 'target', 
+             NodeID = 'name', Group = 'group',
+             zoom = TRUE,
+             linkDistance = 200,
+             charge = -50,
+             opacity = 0.8,
+             legend = T)
+
+
+```
+```

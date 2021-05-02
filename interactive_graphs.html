@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Interactive Graphs</title>
+
+<script src="site_libs/header-attrs-2.7/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<script src="site_libs/d3-4.5.0/d3.min.js"></script>
+<link href="site_libs/edgebundleR-0.0.2/styles.css" rel="stylesheet" />
+<script src="site_libs/edgebundleR-0.0.2/packages.js"></script>
+<script src="site_libs/edgebundleR-binding-0.1.4/edgebundleR.js"></script>
+<script src="site_libs/forceNetwork-binding-0.4/forceNetwork.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Personal Website - Thesis</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="interactive_graphs.html">Interactive Graphs</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Interactive Graphs</h1>
+
+</div>
+
+
+<p><strong>Look at how cool this plot is!</strong></p>
+<p><span class="math display">\[Y = \alpha \cdot \sin(X), \alpha = 0,0.1,0.2,...,3\]</span></p>
+<pre><code>## Loading required package: tidyverse</code></pre>
+<pre><code>## -- Attaching packages ------------------------- tidyverse 1.3.0 --</code></pre>
+<pre><code>## v ggplot2 3.3.3     v purrr   0.3.4
+## v tibble  3.1.0     v dplyr   1.0.5
+## v tidyr   1.1.3     v stringr 1.4.0
+## v readr   1.4.0     v forcats 0.5.1</code></pre>
+<pre><code>## -- Conflicts ---------------------------- tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre><code>## Loading required package: quanteda</code></pre>
+<pre><code>## Package version: 3.0.0
+## Unicode version: 10.0
+## ICU version: 61.1</code></pre>
+<pre><code>## Parallel computing: 16 of 16 threads used.</code></pre>
+<pre><code>## See https://quanteda.io for tutorials and examples.</code></pre>
+<pre><code>## Loading required package: quanteda.textmodels</code></pre>
+<pre><code>## Loading required package: readtext</code></pre>
+<pre><code>## Loading required package: stm</code></pre>
+<pre><code>## stm v1.3.6 successfully loaded. See ?stm for help. 
+##  Papers, resources, and other materials at structuraltopicmodel.com</code></pre>
+<pre><code>## Loading required package: rio</code></pre>
+<pre><code>## The following rio suggested packages are not installed: &#39;arrow&#39;, &#39;feather&#39;, &#39;fst&#39;, &#39;hexView&#39;, &#39;pzfx&#39;, &#39;rmatio&#39;
+## Use &#39;install_formats()&#39; to install them</code></pre>
+<pre><code>## 
+## Attaching package: &#39;rio&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:quanteda&#39;:
+## 
+##     convert</code></pre>
+<pre><code>## Loading required package: countrycode</code></pre>
+<pre><code>## Loading required package: writexl</code></pre>
+<pre><code>## Loading required package: igraph</code></pre>
+<pre><code>## 
+## Attaching package: &#39;igraph&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     as_data_frame, groups, union</code></pre>
+<pre><code>## The following objects are masked from &#39;package:purrr&#39;:
+## 
+##     compose, simplify</code></pre>
+<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
+## 
+##     crossing</code></pre>
+<pre><code>## The following object is masked from &#39;package:tibble&#39;:
+## 
+##     as_data_frame</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     decompose, spectrum</code></pre>
+<pre><code>## The following object is masked from &#39;package:base&#39;:
+## 
+##     union</code></pre>
+<pre><code>## Loading required package: knitr</code></pre>
+<pre><code>## Loading required package: CINNA</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;GGally&#39;:
+##   method from   
+##   +.gg   ggplot2</code></pre>
+<pre><code>## Loading required package: Hmisc</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## 
+## Attaching package: &#39;lattice&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stm&#39;:
+## 
+##     cloud</code></pre>
+<pre><code>## Loading required package: survival</code></pre>
+<pre><code>## Loading required package: Formula</code></pre>
+<pre><code>## 
+## Attaching package: &#39;Hmisc&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     src, summarize</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     format.pval, units</code></pre>
+<pre><code>## Loading required package: stargazer</code></pre>
+<pre><code>## 
+## Please cite as:</code></pre>
+<pre><code>##  Hlavac, Marek (2018). stargazer: Well-Formatted Regression and Summary Statistics Tables.</code></pre>
+<pre><code>##  R package version 5.2.2. https://CRAN.R-project.org/package=stargazer</code></pre>
+<pre><code>## Loading required package: quanteda.textstats</code></pre>
+<pre><code>## Loading required package: networkD3</code></pre>
+<pre><code>## Loading required package: graph4lg</code></pre>
+<pre><code>## Welcome to &#39;graph4lg&#39; package. Let&#39;s do landscape genetics analysis with graphs</code></pre>
+<pre><code>## Loading required package: edgebundleR</code></pre>
+<pre><code>## [1] &quot;igraph&quot;</code></pre>
+<pre><code>## [1] &quot;igraph&quot;</code></pre>
+<div id="htmlwidget-41930d80b57798e1d2ff" style="width:672px;height:480px;" class="edgebundleR html-widget"></div>
+<script type="application/json" data-for="htmlwidget-41930d80b57798e1d2ff">{"x":{"json_real":"[{\"name\":\"AAB\",\"imports\":[\"BRA\",\"PNG\"]},{\"name\":\"ALG\",\"imports\":[\"BEL\",\"EGY\",\"MAA\",\"TUN\",\"TUR\",\"USA\",\"SAF\"]},{\"name\":\"AUL\",\"imports\":[\"BRA\",\"EGY\",\"GMY\",\"GUA\",\"IND\",\"ISR\",\"ITA\",\"LEB\",\"PNG\",\"TUR\",\"USA\"]},{\"name\":\"BAH\",\"imports\":[\"BRA\",\"EGY\",\"IND\",\"TUR\",\"USA\"]},{\"name\":\"BEL\",\"imports\":[\"BRA\",\"GMY\",\"IND\",\"ISR\",\"ITA\",\"MAA\",\"TUR\",\"USA\"]},{\"name\":\"BRA\",\"imports\":[\"COL\",\"GUA\",\"HON\",\"IND\",\"ISR\",\"TUR\",\"USA\"]},{\"name\":\"COL\",\"imports\":[\"GUA\",\"HON\",\"ISR\",\"ITA\",\"USA\"]},{\"name\":\"CRO\",\"imports\":[\"CZR\",\"GMY\",\"IND\",\"ISR\",\"ITA\",\"TUR\",\"USA\"]},{\"name\":\"CZR\",\"imports\":[\"EGY\",\"IND\",\"ISR\",\"TUR\",\"USA\"]},{\"name\":\"EGY\",\"imports\":[\"GMY\",\"IND\",\"ISR\",\"ITA\",\"LEB\",\"MAA\",\"TUN\",\"USA\",\"SAF\"]},{\"name\":\"GMY\",\"imports\":[\"IND\",\"ISR\",\"ITA\",\"TUN\",\"TUR\",\"USA\"]},{\"name\":\"GUA\",\"imports\":[\"HON\",\"IND\"]},{\"name\":\"HON\",\"imports\":[\"ISR\",\"USA\"]},{\"name\":\"IND\",\"imports\":[\"ISR\",\"ITA\",\"PNG\",\"TUR\",\"USA\",\"SAF\"]},{\"name\":\"ISR\",\"imports\":[\"ITA\",\"PNG\",\"USA\"]},{\"name\":\"ITA\",\"imports\":[\"LEB\",\"TUN\",\"TUR\",\"USA\",\"SAF\"]},{\"name\":\"LEB\",\"imports\":[\"TUR\",\"USA\"]},{\"name\":\"MAA\",\"imports\":[\"TUR\",\"USA\"]},{\"name\":\"PNG\",\"imports\":null},{\"name\":\"TUN\",\"imports\":[\"TUR\",\"USA\"]},{\"name\":\"TUR\",\"imports\":\"USA\"},{\"name\":\"TUV\",\"imports\":null},{\"name\":\"USA\",\"imports\":\"SAF\"},{\"name\":\"WSM\",\"imports\":null},{\"name\":\"SAF\",\"imports\":null}]","width":null,"height":null,"padding":100,"tension":0.8,"fontsize":10,"nodesize":[5,20],"directed":false},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-bf6695247e1fb53e12bb" style="width:672px;height:480px;" class="edgebundleR html-widget"></div>
+<script type="application/json" data-for="htmlwidget-bf6695247e1fb53e12bb">{"x":{"json_real":"[{\"name\":\"AAB\",\"imports\":[\"BRA\",\"PNG\",\"UKG\"]},{\"name\":\"ALG\",\"imports\":[\"BEL\",\"CHN\",\"EGY\",\"FRN\",\"JPN\",\"MAA\",\"RUS\",\"SAF\",\"TUN\",\"TUR\",\"UKG\",\"USA\"]},{\"name\":\"AUL\",\"imports\":[\"BRA\",\"CHN\",\"EGY\",\"FRN\",\"GMY\",\"GUA\",\"IND\",\"ISR\",\"ITA\",\"JPN\",\"LEB\",\"PNG\",\"TUR\",\"UKG\",\"USA\"]},{\"name\":\"BAH\",\"imports\":[\"BRA\",\"CHN\",\"EGY\",\"FRN\",\"IND\",\"JPN\",\"RUS\",\"TUR\",\"UKG\",\"USA\"]},{\"name\":\"BEL\",\"imports\":[\"BRA\",\"CHN\",\"FRN\",\"GMY\",\"IND\",\"ISR\",\"ITA\",\"JPN\",\"MAA\",\"RUS\",\"TUR\",\"UKG\",\"USA\"]},{\"name\":\"BRA\",\"imports\":[\"CHN\",\"COL\",\"FRN\",\"GUA\",\"HON\",\"IND\",\"ISR\",\"RUS\",\"TUR\",\"USA\"]},{\"name\":\"CHN\",\"imports\":[\"CRO\",\"EGY\",\"FRN\",\"GMY\",\"IND\",\"ISR\",\"ITA\",\"JPN\",\"RUS\",\"TUN\",\"TUR\",\"UKG\"]},{\"name\":\"COL\",\"imports\":[\"FRN\",\"GUA\",\"HON\",\"ISR\",\"ITA\",\"USA\"]},{\"name\":\"CRO\",\"imports\":[\"CZR\",\"GMY\",\"IND\",\"ISR\",\"ITA\",\"TUR\",\"UKG\",\"USA\"]},{\"name\":\"CZR\",\"imports\":[\"EGY\",\"IND\",\"ISR\",\"TUR\",\"USA\"]},{\"name\":\"EGY\",\"imports\":[\"FRN\",\"GMY\",\"IND\",\"ISR\",\"ITA\",\"JPN\",\"LEB\",\"MAA\",\"RUS\",\"SAF\",\"TUN\",\"UKG\",\"USA\"]},{\"name\":\"FRN\",\"imports\":[\"GMY\",\"IND\",\"ISR\",\"ITA\",\"JPN\",\"LEB\",\"MAA\",\"RUS\",\"TUN\",\"UKG\",\"USA\"]},{\"name\":\"GMY\",\"imports\":[\"IND\",\"ISR\",\"ITA\",\"JPN\",\"TUN\",\"TUR\",\"USA\"]},{\"name\":\"GUA\",\"imports\":[\"HON\",\"IND\"]},{\"name\":\"HON\",\"imports\":[\"ISR\",\"USA\"]},{\"name\":\"IND\",\"imports\":[\"ISR\",\"ITA\",\"JPN\",\"PNG\",\"RUS\",\"SAF\",\"TUR\",\"UKG\",\"USA\"]},{\"name\":\"ISR\",\"imports\":[\"ITA\",\"JPN\",\"PNG\",\"RUS\",\"UKG\",\"USA\"]},{\"name\":\"ITA\",\"imports\":[\"JPN\",\"LEB\",\"SAF\",\"TUN\",\"TUR\",\"USA\"]},{\"name\":\"JPN\",\"imports\":[\"RUS\",\"TUN\",\"UKG\",\"USA\"]},{\"name\":\"LEB\",\"imports\":[\"RUS\",\"TUR\",\"UKG\",\"USA\"]},{\"name\":\"MAA\",\"imports\":[\"TUR\",\"USA\"]},{\"name\":\"PNG\",\"imports\":null},{\"name\":\"RUS\",\"imports\":[\"SAF\",\"TUN\",\"TUR\",\"USA\"]},{\"name\":\"SAF\",\"imports\":\"USA\"},{\"name\":\"TUN\",\"imports\":[\"TUR\",\"UKG\",\"USA\"]},{\"name\":\"TUR\",\"imports\":[\"UKG\",\"USA\"]},{\"name\":\"TUV\",\"imports\":null},{\"name\":\"UKG\",\"imports\":\"USA\"},{\"name\":\"USA\",\"imports\":null},{\"name\":\"WSM\",\"imports\":null}]","width":null,"height":null,"padding":100,"tension":0.8,"fontsize":10,"nodesize":[5,20],"directed":false},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-520529f007f39ed93031" style="width:672px;height:480px;" class="forceNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-520529f007f39ed93031">{"x":{"links":{"source":[1,0,2,3,4,5,7,2,1,8,3,2,9,7,4,5,6,2,11,6,5,3,7,4,8,5,9,11,10,2,9,7,4,8,5,12,6,2,13,10,6,9,4,10,13,14,2,7,9,15,2,9,4,1,0,2,14,13,1,22,9,13,15,9,1,10,15,8,7,1,17,3,5,13,2,4,19,15,10,16,13,1,2,17,3,14,5,4,10,15,7,16,12,6,20,8,19,9],"target":[4,5,5,5,5,6,8,9,9,9,9,10,10,10,10,11,11,11,12,12,12,13,13,13,13,13,13,13,13,13,14,14,14,14,14,14,14,14,14,14,15,15,15,15,15,15,15,15,16,16,16,17,17,17,18,18,18,18,24,24,24,24,24,19,19,19,19,20,20,20,20,20,20,20,20,20,20,20,20,20,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22],"colour":["#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666"]},"nodes":{"name":["AAB","ALG","AUL","BAH","BEL","BRA","COL","CRO","CZR","EGY","GMY","GUA","HON","IND","ISR","ITA","LEB","MAA","PNG","TUN","TUR","TUV","USA","WSM","SAF"],"group":[2,1,2,1,1,2,2,3,3,1,1,2,2,3,2,1,1,1,2,1,1,4,1,5,1]},"options":{"NodeID":"name","Group":"group","colourScale":"d3.scaleOrdinal(d3.schemeCategory20);","fontSize":7,"fontFamily":"serif","clickTextSize":17.5,"linkDistance":200,"linkWidth":"function(d) { return Math.sqrt(d.value); }","charge":-30,"opacity":0.8,"zoom":true,"legend":true,"arrows":false,"nodesize":false,"radiusCalculation":" Math.sqrt(d.nodesize)+6","bounded":false,"opacityNoHover":0,"clickAction":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-d929bc0c523d453a7c3c" style="width:672px;height:480px;" class="forceNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d929bc0c523d453a7c3c">{"x":{"links":{"source":[1,0,4,2,3,3,5,1,2,4,5,6,8,2,1,3,9,6,2,10,7,5,6,4,3,1,4,8,10,6,2,11,5,7,2,13,5,7,8,5,4,9,10,11,12,2,13,6,3,9,4,11,12,7,5,6,10,2,15,8,14,10,15,4,11,12,16,6,8,2,7,10,6,4,11,1,3,17,15,2,12,16,2,17,11,10,1,10,4,11,16,2,0,15,4,1,15,5,18,3,10,19,6,16,11,22,17,15,1,10,17,6,11,12,1,10,22,18,1,17,12,3,22,19,24,9,4,5,20,6,2,15,8,15,16,24,4,25,6,11,0,8,10,1,18,19,3,2,12,2,1,15,23,20,16,11,22,19,10,7,3,25,14,5,17,4,27,24,9,8,18],"target":[4,5,5,5,5,6,6,6,6,6,7,8,9,10,10,10,10,10,11,11,11,11,11,11,11,11,12,12,12,12,12,12,13,13,13,14,14,14,15,15,15,15,15,15,15,15,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,18,19,19,19,19,20,20,20,20,21,21,21,21,22,22,22,22,22,22,22,22,22,22,22,23,23,23,23,23,24,24,24,24,24,24,24,24,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,27,27,27,27,27,27,27,27,27,27,27,27,27,27,27,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28],"colour":["#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666","#666"]},"nodes":{"name":["AAB","ALG","AUL","BAH","BEL","BRA","CHN","COL","CRO","CZR","EGY","FRN","GMY","GUA","HON","IND","ISR","ITA","JPN","LEB","MAA","PNG","RUS","SAF","TUN","TUR","TUV","UKG","USA","WSM"],"group":[3,2,3,1,2,3,1,3,2,2,1,1,1,3,3,3,3,1,1,1,2,3,1,1,1,2,4,2,2,5]},"options":{"NodeID":"name","Group":"group","colourScale":"d3.scaleOrdinal(d3.schemeCategory20);","fontSize":7,"fontFamily":"serif","clickTextSize":17.5,"linkDistance":200,"linkWidth":"function(d) { return Math.sqrt(d.value); }","charge":-50,"opacity":0.8,"zoom":true,"legend":true,"arrows":false,"nodesize":false,"radiusCalculation":" Math.sqrt(d.nodesize)+6","bounded":false,"opacityNoHover":0,"clickAction":null}},"evals":[],"jsHooks":[]}</script>
+<p>```</p>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
